@@ -24,13 +24,17 @@ class StatesController < ApplicationController
   end
 
   def get_tokens
-    auth_header = Base64.encode64("46609:#{ENV['CLIENT_SECRET']}")
-    response = HTTParty.post("https://www.bungie.net/platform/app/oauth/token/?grant_type=authorization_code&code=#{params[:code]}", {
-      headers: {
-        "Authorization" => "Basic #{auth_header}",
-        "Content-Type" => "application/x-www-form-urlencoded"
-      }
-    })
+    auth_header = Base64.strict_encode64("46609:#{ENV['CLIENT_SECRET']}")
+    headers = {
+      "Authorization" => "Basic #{auth_header}",
+      "Content-Type" => "application/x-www-form-urlencoded"
+    }
+
+    body = {
+      "grant_type" => "authorization_code",
+      "code" => "#{params[:code]}"
+    }
+    response = HTTParty.post("https://www.bungie.net/platform/app/oauth/token", body: body, headers: headers)
 
     render json: response, status: 200
   end
